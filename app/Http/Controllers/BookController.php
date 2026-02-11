@@ -42,7 +42,7 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        $cachedBook = Cache::remember('book-' . $book->id, 60, function ($book) {
+        $cachedBook = Cache::remember('book-' . $book->id, 60, function () use ($book) {
             return $book;
         });
         return new BookResource($cachedBook);
