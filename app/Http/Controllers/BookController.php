@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -15,7 +16,8 @@ class BookController extends Controller
      */
     public function index()
     {
-        return BookResource::collection(Book::all());
+        $books = Book::paginate(10);
+        return BookResource::collection($books);
     }
 
     /**
@@ -40,7 +42,10 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        return new BookResource($book);
+        $cachedBook = Cache::remember('book-' . $book->id, 60, function ($book) {
+            return $book;
+        });
+        return new BookResource($cachedBook);
     }
 
     /**
